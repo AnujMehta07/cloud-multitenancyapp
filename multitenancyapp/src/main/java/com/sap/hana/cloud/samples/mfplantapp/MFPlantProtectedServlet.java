@@ -13,7 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.sap.hana.cloud.samples.mfplantapp.api.MFPlantListService;
-import com.sap.hana.cloud.samples.mfplantapp.model.MFPlantLocation;
+import com.sap.hana.cloud.samples.mfplantapp.model.MFPlant;
 
 /**
  * Servlet implementation class MFPlantProtectedServlet
@@ -32,39 +32,49 @@ public class MFPlantProtectedServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		JSONArray locations = new JSONArray();
-		MFPlantListService locationService=new MFPlantListService();	
+		JSONArray plants = new JSONArray();
+		MFPlantListService plantListService=new MFPlantListService();	
 		if (request.getRemoteUser() != null) {
-
 			if (request.isUserInRole("admin")) {
-
-				List<MFPlantLocation> plantLocations = locationService
-						.getMFPlantLists(request);
-				for (Iterator iterator = plantLocations.iterator(); iterator
+				List<MFPlant> plantList = plantListService
+						.getMFPlantList(request);
+				for (Iterator iterator = plantList.iterator(); iterator
 						.hasNext();) {
-					MFPlantLocation plantLocation = (MFPlantLocation) iterator.next();
-					JSONObject city = new JSONObject();
-					city.put("name", plantLocation.getName());
-					city.put("id", plantLocation.getId());
-					city.put("owner", plantLocation.getOwner());
-					locations.put(city);
+					MFPlant mfPlant = (MFPlant) iterator.next();
+					JSONObject plant = new JSONObject();
+					plant.put("name", mfPlant.getName());
+					plant.put("id", mfPlant.getId());
+					plant.put("employeeId", mfPlant.getEmployeeId());
+					plant.put("co", mfPlant.getCo());
+					plant.put("o3", mfPlant.getO3());
+					plant.put("pm10", mfPlant.getPm10());
+					plant.put("pm25", mfPlant.getPm25());
+					plant.put("so2", mfPlant.getSo2());
+					plant.put("no2", mfPlant.getNo2());
+					plants.put(plant);
 				}
 				response.setContentType("application/json");
-				response.getWriter().write(locations.toString());
+				response.getWriter().write(plants.toString());
 			}
 			else if(request.isUserInRole("user")){			
-				List<MFPlantLocation> mfPlantLocations = locationService.getMFPlantByOwner(request);
-				for (Iterator iterator = mfPlantLocations.iterator(); iterator
+				List<MFPlant> plantList = plantListService.getMFPlantByEmployeeId(request);
+				for (Iterator iterator = plantList.iterator(); iterator
 						.hasNext();) {
-					MFPlantLocation plantLocation = (MFPlantLocation) iterator.next();
-					JSONObject city = new JSONObject();
-					city.put("name", plantLocation.getName());
-					city.put("id", plantLocation.getId());
-					city.put("owner", plantLocation.getOwner());
-					locations.put(city);			
+					MFPlant mfPlant = (MFPlant) iterator.next();
+					JSONObject plant = new JSONObject();
+					plant.put("name", mfPlant.getName());
+					plant.put("id", mfPlant.getId());
+					plant.put("employeeId", mfPlant.getEmployeeId());
+					plant.put("co", mfPlant.getCo());
+					plant.put("o3", mfPlant.getO3());
+					plant.put("pm10", mfPlant.getPm10());
+					plant.put("pm25", mfPlant.getPm25());
+					plant.put("so2", mfPlant.getSo2());
+					plant.put("no2", mfPlant.getNo2());
+					plants.put(plant);			
 				}
 				response.setContentType("application/json");
-				response.getWriter().write(locations.toString());
+				response.getWriter().write(plants.toString());
 			}
 		}
 	}

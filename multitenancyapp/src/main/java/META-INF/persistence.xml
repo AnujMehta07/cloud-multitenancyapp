@@ -3,9 +3,9 @@
 	<persistence-unit name="mfplantapp" transaction-type="RESOURCE_LOCAL">
 		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
 		<class>com.sap.hana.cloud.samples.mfplantapp.model.BaseObject</class>
-		<class>com.sap.hana.cloud.samples.mfplantapp.model.MFPlantLocation</class>
+		<class>com.sap.hana.cloud.samples.mfplantapp.model.MFPlant</class>
 		<properties>
-			<property name="eclipselink.ddl-generation" value="create-tables"/>
+			<property name="eclipselink.ddl-generation" value="drop-and-create-tables"/>
 		</properties>
 	</persistence-unit>
 </persistence>

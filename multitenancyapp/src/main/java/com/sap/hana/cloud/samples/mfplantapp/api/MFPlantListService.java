@@ -27,38 +27,38 @@ import org.eclipse.persistence.config.PersistenceUnitProperties;
 
 import com.sap.cloud.account.Tenant;
 import com.sap.cloud.account.TenantContext;
-import com.sap.hana.cloud.samples.mfplantapp.model.MFPlantLocation;
+import com.sap.hana.cloud.samples.mfplantapp.model.MFPlant;
 
 /**
  * {@link MFPlantListService}
  * 
  * @version 0.1
  */
-@Path("/locations")
+@Path("/plantlist")
 @Produces({ MediaType.APPLICATION_JSON })
 public class MFPlantListService 
 {
 	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/")
-	public List<MFPlantLocation> getMFPlantLists(@Context HttpServletRequest request)
+	public List<MFPlant> getMFPlantList(@Context HttpServletRequest request)
 	{
-		List<MFPlantLocation> retVal = null;		
+		List<MFPlant> retVal = null;		
 		TenantContext tenantContext = getTenantContext();
 		Tenant tenant = tenantContext.getTenant();
 		String tenantId = tenant.getId();
 		Map<String, String> props = new HashMap<String, String>();
 		props.put("elipselink.tenant.id", tenantId);
 		EntityManager em = this.getEntityManagerFactory().createEntityManager(props);
-		retVal = em.createNamedQuery("MFPlantLocations").getResultList();
+		retVal = em.createNamedQuery("MFPlants").getResultList();
 		return retVal;
 	}
 	
 	@GET
 	@Path("/{id}")
-	public MFPlantLocation getMFPlantById(@PathParam(value = "id") String id, @Context SecurityContext ctx)
+	public MFPlant getMFPlantById(@PathParam(value = "id") String id, @Context SecurityContext ctx)
 	{
-		MFPlantLocation retVal = null;
+		MFPlant retVal = null;
 		TenantContext tenantContext = getTenantContext();
 		Tenant tenant = tenantContext.getTenant();
 		String tenantId = tenant.getId().trim();
@@ -67,9 +67,9 @@ public class MFPlantListService
 		EntityManager em = this.getEntityManagerFactory().createEntityManager(props);
 		try
 		{
-			Query query = em.createNamedQuery("MFPlantLocationById");
+			Query query = em.createNamedQuery("MFPlantById");
 			query.setParameter("id", id);
-			retVal = (MFPlantLocation) query.getSingleResult();
+			retVal = (MFPlant) query.getSingleResult();
 		}
 		catch(Exception ex)
 		{
@@ -83,10 +83,10 @@ public class MFPlantListService
 	}
 	
 	@GET
-	@Path("/owner")
-	public List<MFPlantLocation> getMFPlantByOwner(@Context HttpServletRequest req)
+	@Path("/employeeId")
+	public List<MFPlant> getMFPlantByEmployeeId(@Context HttpServletRequest req)
 	{
-		List<MFPlantLocation> retVal = null;
+		List<MFPlant> retVal = null;
 		TenantContext tenantContext = getTenantContext();
 		Tenant tenant = tenantContext.getTenant();
 		String tenantId = tenant.getId().trim();
@@ -95,8 +95,8 @@ public class MFPlantListService
 		EntityManager em = this.getEntityManagerFactory().createEntityManager(props);
 		try
 		{
-			Query query = em.createNamedQuery("MFPlantLocationByOwner");
-			query.setParameter("owner", req.getUserPrincipal().getName());
+			Query query = em.createNamedQuery("MFPlantByEmployeeId");
+			query.setParameter("employeeId", req.getUserPrincipal().getName());
 			retVal = query.getResultList();
 		}
 		catch(Exception ex)
@@ -112,46 +112,60 @@ public class MFPlantListService
 	}
 	@SuppressWarnings("unchecked")
 	@POST
-	@Path("/{id}/{name}/{countryCode}/{owner}")
-	public List<MFPlantLocation> addMFPlant(@Context SecurityContext ctx,
+	@Path("/{id}/{name}/{country}/{city}/{location}/{employeeId}/{co}/{o3}/{pm10}/{pm25}/{so2}/{no2}/")
+	public List<MFPlant> addMFPlant(@Context SecurityContext ctx,
 			@PathParam(value = "id") String id,
 			@PathParam(value = "name") String name,
-			@PathParam(value = "countryCode") String countryCode,
-			@PathParam(value = "owner") String owner) {
-		List<MFPlantLocation> retVal = null;
-		MFPlantLocation city = new MFPlantLocation();
-		city.setId(id);
-		city.setName(name);
-		city.setCountryCode(countryCode);
-		city.setOwner(owner);
+			@PathParam(value = "country") String country,
+			@PathParam(value = "city") String city,
+			@PathParam(value = "location") String location,
+			@PathParam(value = "employeeId") String employeeId,
+			@PathParam(value = "co") String co,
+			@PathParam(value = "o3") String o3,
+			@PathParam(value = "pm10") String pm10,
+			@PathParam(value = "pm25") String pm25,
+			@PathParam(value = "so2") String so2,
+			@PathParam(value = "no2") String no2
+			) {
+		List<MFPlant> retVal = null;
+		MFPlant plant = new MFPlant();
+		plant.setId(id);
+		plant.setName(name);
+		plant.setCountry(country);
+		plant.setCity(city);
+		plant.setLocation(location);
+		plant.setEmployeeId(employeeId);
+		plant.setCo(co);
+		plant.setO3(o3);
+		plant.setPm10(pm10);
+		plant.setPm25(pm25);
+		plant.setSo2(so2);
+		plant.setNo2(no2);
 		TenantContext tenantContext = getTenantContext();
 		Tenant tenant = tenantContext.getTenant();
 		String tenantId = tenant.getId().trim();
 		Map<String, String> props = new HashMap<String, String>();
 		props.put("elipselink.tenant.id", tenantId);
-		EntityManager em = this.getEntityManagerFactory().createEntityManager(
-				props);
+		EntityManager em = this.getEntityManagerFactory().createEntityManager(props);
 		try {
 			em.getTransaction().begin();
-			em.persist(city);
+			em.persist(plant);
 			em.getTransaction().commit();
-
-			retVal = em.createNamedQuery("MFPlantLocations").getResultList();
+			retVal = em.createNamedQuery("MFPlants").getResultList();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		} finally {
 			em.close();
 		}
-
 		return retVal;
 	}
 	
 	@SuppressWarnings("unchecked")
 	@DELETE
 	@Path("/{id}")
-	public List<MFPlantLocation> removeMFPlant(@PathParam(value = "id") String id, @Context SecurityContext ctx)
+	public List<MFPlant> removeMFPlant(@PathParam(value = "id") String id, @Context SecurityContext ctx)
 	{
-		List<MFPlantLocation> retVal = null;
+		List<MFPlant> retVal = null;
 		TenantContext tenantContext = getTenantContext();
 		Tenant tenant = tenantContext.getTenant();
 		String tenantId = tenant.getId().trim();
@@ -160,16 +174,16 @@ public class MFPlantListService
 		EntityManager em = this.getEntityManagerFactory().createEntityManager(props);
 		try
 		{
-			Query query = em.createNamedQuery("MFPlantLocationById");
+			Query query = em.createNamedQuery("MFPlantById");
 			query.setParameter("id", id);
-			MFPlantLocation city = (MFPlantLocation) query.getSingleResult();		
+			MFPlant city = (MFPlant) query.getSingleResult();		
 			if (city != null)
 			{
 				em.getTransaction().begin();
 				em.remove(city);
 				em.getTransaction().commit();
 			}
-			retVal = em.createNamedQuery("MFPlantLocations").getResultList();
+			retVal = em.createNamedQuery("MFPlants").getResultList();
 		}
 		catch(Exception ex)
 		{

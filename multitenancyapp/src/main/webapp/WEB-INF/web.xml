@@ -9,7 +9,7 @@
     <res-type>javax.sql.DataSource</res-type>
   </resource-ref>
   <resource-ref>
-    <res-ref-name>ManufacturingPlant</res-ref-name>
+    <res-ref-name>plantdetails</res-ref-name>
     <res-type>com.sap.core.connectivity.api.http.HttpDestination</res-type>
   </resource-ref>
   <resource-ref>
@@ -50,7 +50,7 @@
     <web-resource-collection>
       <web-resource-name>Protected Area</web-resource-name>
       <url-pattern>/</url-pattern>
-      <url-pattern>/api/v1/locations/*</url-pattern>
+      <url-pattern>/api/v1/plantlist/*</url-pattern>
     </web-resource-collection>
     <auth-constraint>
       <role-name>user</role-name>
@@ -60,7 +60,7 @@
   <security-constraint>
     <web-resource-collection>
       <web-resource-name>Admin Area</web-resource-name>
-      <url-pattern>/api/v1/locations</url-pattern>
+      <url-pattern>/api/v1/plantlist</url-pattern>
     </web-resource-collection>
     <auth-constraint>
       <role-name>admin</role-name>
@@ -69,14 +69,4 @@
   <login-config>
     <auth-method>FORM</auth-method>
   </login-config>
-  <servlet>
-    <description></description>
-    <display-name>MFPlantLogoutServlet</display-name>
-    <servlet-name>MFPlantLogoutServlet</servlet-name>
-    <servlet-class>com.sap.hana.cloud.samples.mfplantapp.MFPlantLogoutServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>MFPlantLogoutServlet</servlet-name>
-    <url-pattern>/logout</url-pattern>
-  </servlet-mapping>
 </web-app>
