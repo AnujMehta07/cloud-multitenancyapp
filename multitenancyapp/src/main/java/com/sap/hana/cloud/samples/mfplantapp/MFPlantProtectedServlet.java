@@ -19,8 +19,7 @@ import com.sap.hana.cloud.samples.mfplantapp.model.MFPlant;
  * Servlet implementation class MFPlantProtectedServlet
  */
 public class MFPlantProtectedServlet extends HttpServlet {
-	private static final long serialVersionUID = 1L;
-       
+	private static final long serialVersionUID = 1L;    
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -38,13 +37,11 @@ public class MFPlantProtectedServlet extends HttpServlet {
 			if (request.isUserInRole("admin")) {
 				List<MFPlant> plantList = plantListService
 						.getMFPlantList(request);
-				for (Iterator iterator = plantList.iterator(); iterator
+				for (Iterator<MFPlant> iterator = plantList.iterator(); iterator
 						.hasNext();) {
 					MFPlant mfPlant = (MFPlant) iterator.next();
 					JSONObject plant = new JSONObject();
-					plant.put("name", mfPlant.getName());
 					plant.put("id", mfPlant.getId());
-					plant.put("employeeId", mfPlant.getEmployeeId());
 					plant.put("co", mfPlant.getCo());
 					plant.put("o3", mfPlant.getO3());
 					plant.put("pm10", mfPlant.getPm10());
@@ -57,24 +54,22 @@ public class MFPlantProtectedServlet extends HttpServlet {
 				response.getWriter().write(plants.toString());
 			}
 			else if(request.isUserInRole("user")){			
-				List<MFPlant> plantList = plantListService.getMFPlantByEmployeeId(request);
-				for (Iterator iterator = plantList.iterator(); iterator
-						.hasNext();) {
-					MFPlant mfPlant = (MFPlant) iterator.next();
-					JSONObject plant = new JSONObject();
-					plant.put("name", mfPlant.getName());
-					plant.put("id", mfPlant.getId());
-					plant.put("employeeId", mfPlant.getEmployeeId());
-					plant.put("co", mfPlant.getCo());
-					plant.put("o3", mfPlant.getO3());
-					plant.put("pm10", mfPlant.getPm10());
-					plant.put("pm25", mfPlant.getPm25());
-					plant.put("so2", mfPlant.getSo2());
-					plant.put("no2", mfPlant.getNo2());
-					plants.put(plant);			
-				}
-				response.setContentType("application/json");
-				response.getWriter().write(plants.toString());
+				//List<MFPlant> plantList = plantListService.getMFPlantByEmployeeId(request);
+//				for (Iterator iterator = plantList.iterator(); iterator
+//						.hasNext();) {
+//					MFPlant mfPlant = (MFPlant) iterator.next();
+//					JSONObject plant = new JSONObject();
+//					plant.put("id", mfPlant.getId());
+//					plant.put("co", mfPlant.getCo());
+//					plant.put("o3", mfPlant.getO3());
+//					plant.put("pm10", mfPlant.getPm10());
+//					plant.put("pm25", mfPlant.getPm25());
+//					plant.put("so2", mfPlant.getSo2());
+//					plant.put("no2", mfPlant.getNo2());
+//					plants.put(plant);			
+//				}
+//				response.setContentType("application/json");
+//				response.getWriter().write(plants.toString());
 			}
 		}
 	}

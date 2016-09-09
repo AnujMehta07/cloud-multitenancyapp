@@ -27,9 +27,84 @@ import com.sap.core.connectivity.api.http.HttpDestination;
 @Produces({ MediaType.APPLICATION_JSON })
 public class MFPlantDetailService {
 	private static final int COPY_CONTENT_BUFFER_SIZE = 1024;
-
 	@GET
-	@Path("/*")
+	@Path("/all")
+	@Produces({ MediaType.APPLICATION_JSON })
+	public Response getMFPlantsInformation() {
+		HttpClient httpClient = null;
+		HttpGet httpGet = null;
+		String msgBody = null;
+		try {
+			// Get HTTP destination
+			Context ctx = new InitialContext();
+			HttpDestination destination = (HttpDestination) ctx.lookup("java:comp/env/" + "plantdetails");
+			// Create HTTP client
+			httpClient = destination.createHttpClient();
+			final String baseURL = destination.getURI().toString();
+			// Execute HTTP request
+			httpGet = new HttpGet(baseURL);
+			HttpResponse httpResponse = httpClient.execute(httpGet);
+			// Check response status code
+			int statusCode = httpResponse.getStatusLine().getStatusCode();
+			// copy content from the incoming response to the outgoing response
+			HttpEntity entity = null;
+			if (httpResponse != null) {
+				entity = httpResponse.getEntity();
+			}
+			msgBody = getResponseBodyasString(entity);
+			if (statusCode == HttpServletResponse.SC_OK) {
+				return Response.ok(msgBody).build();
+			} else {
+				return Response.status(statusCode).entity(msgBody).build();
+			}
+
+		} catch (RuntimeException e) {
+			// In case of an unexpected exception we abort the HTTP request
+			// in order to shut down the underlying connection immediately.
+			if (httpGet != null) {
+				httpGet.abort();
+			}
+			// unexpected runtime error
+			String errorMessage = "'Houston, we have a problem!' : "
+					+ e.getMessage() + ". See logs for details.";
+
+			msgBody = errorMessage;
+		} catch (NamingException e) {
+			// Lookup of destination failed
+			String errorMessage = "Lookup of destination failed with reason: "
+					+ e.getMessage()
+					+ ". See "
+					+ "logs for details. Hint: Make sure to have the destination "
+					+ "[plantdetails-destination]" + " configured.";
+
+			msgBody = errorMessage;
+		} catch (Exception e) {
+			// Connectivity operation failed
+			String errorMessage = "Connectivity operation failed with reason: "
+					+ e.getMessage()
+					+ ". See "
+					+ "logs for details. Hint: Make sure to have an HTTP proxy configured in your "
+					+ "local Eclipse environment in case your environment uses "
+					+ "an HTTP proxy for the outbound Internet "
+					+ "communication.";
+
+			msgBody = errorMessage;
+		} finally {
+			// When HttpClient instance is no longer needed, shut down the
+			// connection manager to ensure immediate
+			// deallocation of all system resources
+			if (httpClient != null) {
+				httpClient.getConnectionManager().shutdown();
+			}
+		}
+
+		// if we end up here something went really bad
+		return Response.serverError().build();
+	}
+
+	
+	@GET
+	@Path("/")
 	@Produces({ MediaType.APPLICATION_JSON })
 	public Response getMFPlantInformation(@QueryParam(value = "id") String id) {
 		HttpClient httpClient = null;
@@ -78,7 +153,7 @@ public class MFPlantDetailService {
 					+ e.getMessage()
 					+ ". See "
 					+ "logs for details. Hint: Make sure to have the destination "
-					+ "[openweathermap-destination]" + " configured.";
+					+ "[plantdetails-destination]" + " configured.";
 
 			msgBody = errorMessage;
 		} catch (Exception e) {
@@ -104,7 +179,8 @@ public class MFPlantDetailService {
 		// if we end up here something went really bad
 		return Response.serverError().build();
 	}
-
+	
+	
 	/**
 	 * Extracts the response body from the specified {@link HttpEntity} and
 	 * returns it as a UTF-8 encoded String.

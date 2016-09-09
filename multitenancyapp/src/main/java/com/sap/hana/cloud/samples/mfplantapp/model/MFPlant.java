@@ -19,8 +19,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Entity
 @Table(name = "MFPLANTAPP_CITY")
 @NamedQueries({@NamedQuery(name = "MFPlants", query = "SELECT c FROM MFPlant c"), 
-	           @NamedQuery(name = "MFPlantById", query = "SELECT c FROM MFPlant c WHERE c.id = :id"),
-	           @NamedQuery(name = "MFPlantByEmployeeId", query = "SELECT c FROM MFPlant c WHERE c.employeeId = :employeeId")})
+	           @NamedQuery(name = "MFPlantById", query = "SELECT c FROM MFPlant c WHERE c.id = :id")})
 
 @XmlRootElement(name ="plantlist")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -32,22 +31,6 @@ public class MFPlant extends BaseObject implements Serializable
 
 	@Column(name="ID", length = 36, nullable=true)
 	String id = null;
-	
-	@Column(name="NAME", length = 128, nullable=true)
-	String name = null;
-	
-	@Column(name="COUNTRY", length = 36, nullable=true)
-	String country = null;
-	
-	@Column(name="CITY", length = 36, nullable=true)
-	String city = null;
-	
-
-	@Column(name="LOCATION", length = 36, nullable=true)
-	String location = null;
-
-	@Column(name="EMPLOYEEID", length = 36, nullable=true)
-	String employeeId = null;
 	
 	@Column(name="CO", length = 10, nullable=true)
 	String co = null;
@@ -114,15 +97,7 @@ public class MFPlant extends BaseObject implements Serializable
 	public void setNo2(String no2) {
 		this.no2 = no2;
 	}
-	
-	public String getEmployeeId() {
-		return employeeId;
-	}
-
-	public void setEmployeeId(String employeeId) {
-		this.employeeId = employeeId;
-	}
-
+		
 	public String getId()
 	{
 		return id;
@@ -133,36 +108,5 @@ public class MFPlant extends BaseObject implements Serializable
 		this.id = id;
 	}
 	
-	public String getName() 
-	{
-		return name;
-	}
 
-	public void setName(String name) 
-	{
-		this.name = name;
-	}
-
-	public String getLocation() {
-		return location;
-	}
-
-	public void setLocation(String location) {
-		this.location = location;
-	}
-	public String getCountry() {
-		return country;
-	}
-
-	public void setCountry(String country) {
-		this.country = country;
-	}
-
-	public String getCity() {
-		return city;
-	}
-
-	public void setCity(String city) {
-		this.city = city;
-	}
 }

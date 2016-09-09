@@ -82,37 +82,10 @@ public class MFPlantListService
 		return retVal;
 	}
 	
-	@GET
-	@Path("/employeeId")
-	public List<MFPlant> getMFPlantByEmployeeId(@Context HttpServletRequest req)
-	{
-		List<MFPlant> retVal = null;
-		TenantContext tenantContext = getTenantContext();
-		Tenant tenant = tenantContext.getTenant();
-		String tenantId = tenant.getId().trim();
-		Map<String, String> props = new HashMap<String, String>();	
-		props.put("elipselink.tenant.id", tenantId);
-		EntityManager em = this.getEntityManagerFactory().createEntityManager(props);
-		try
-		{
-			Query query = em.createNamedQuery("MFPlantByEmployeeId");
-			query.setParameter("employeeId", req.getUserPrincipal().getName());
-			retVal = query.getResultList();
-		}
-		catch(Exception ex)
-		{
-			ex.printStackTrace();
-		}
-		finally
-		{
-			em.close();
-		}	
-		
-		return retVal;
-	}
+	
 	@SuppressWarnings("unchecked")
 	@POST
-	@Path("/{id}/{name}/{country}/{city}/{location}/{employeeId}/{co}/{o3}/{pm10}/{pm25}/{so2}/{no2}/")
+	@Path("/{id}/{co}/{o3}/{pm10}/{pm25}/{so2}/{no2}/")
 	public List<MFPlant> addMFPlant(@Context SecurityContext ctx,
 			@PathParam(value = "id") String id,
 			@PathParam(value = "name") String name,
@@ -130,11 +103,6 @@ public class MFPlantListService
 		List<MFPlant> retVal = null;
 		MFPlant plant = new MFPlant();
 		plant.setId(id);
-		plant.setName(name);
-		plant.setCountry(country);
-		plant.setCity(city);
-		plant.setLocation(location);
-		plant.setEmployeeId(employeeId);
 		plant.setCo(co);
 		plant.setO3(o3);
 		plant.setPm10(pm10);
@@ -247,12 +215,22 @@ public class MFPlantListService
 	@GET
 	@Path("/{id}/mfplantinfo")
 	@Produces({ MediaType.APPLICATION_JSON })
-	public Response getMFPlantDetail(@PathParam(value = "id") String id, @Context SecurityContext ctx)
+	public Response getMFPlantDetail(@PathParam(value = "id") String id)
 	{
 		MFPlantDetailService plantInfoService = new MFPlantDetailService();
 		return plantInfoService.getMFPlantInformation(id);
 	}
 
+	@GET
+	@Path("/mfplantinfo/all")
+	@Produces({ MediaType.APPLICATION_JSON })
+	public Response getMFPlantsDetail()
+	{
+		MFPlantDetailService plantInfoService = new MFPlantDetailService();
+		return plantInfoService.getMFPlantsInformation();
+	}
+	
+	
 	protected TenantContext getTenantContext() {
 		TenantContext tenantContext = null;
 		try {
