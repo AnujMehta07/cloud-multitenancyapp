@@ -14,70 +14,96 @@ import org.json.JSONObject;
 
 import com.sap.hana.cloud.samples.mfplantapp.api.MFPlantListService;
 import com.sap.hana.cloud.samples.mfplantapp.model.MFPlant;
+import com.sap.security.um.service.UserManagementAccessor;
+import com.sap.security.um.user.PersistenceException;
+import com.sap.security.um.user.UnsupportedUserAttributeException;
+import com.sap.security.um.user.User;
+import com.sap.security.um.user.UserProvider;
 
 /**
  * Servlet implementation class MFPlantProtectedServlet
  */
 public class MFPlantProtectedServlet extends HttpServlet {
-	private static final long serialVersionUID = 1L;    
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public MFPlantProtectedServlet() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
+	private static final long serialVersionUID = 1L;
+
 	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#HttpServlet()
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	public MFPlantProtectedServlet() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
+	 *      response)
+	 */
+	protected void doGet(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
 		JSONArray plants = new JSONArray();
-		MFPlantListService plantListService=new MFPlantListService();	
-		if (request.getRemoteUser() != null) {
-			if (request.isUserInRole("admin")) {
-				List<MFPlant> plantList = plantListService
-						.getMFPlantList(request);
-				for (Iterator<MFPlant> iterator = plantList.iterator(); iterator
-						.hasNext();) {
-					MFPlant mfPlant = (MFPlant) iterator.next();
-					JSONObject plant = new JSONObject();
-					plant.put("id", mfPlant.getId());
-					plant.put("co", mfPlant.getCo());
-					plant.put("o3", mfPlant.getO3());
-					plant.put("pm10", mfPlant.getPm10());
-					plant.put("pm25", mfPlant.getPm25());
-					plant.put("so2", mfPlant.getSo2());
-					plant.put("no2", mfPlant.getNo2());
-					plants.put(plant);
+		MFPlantListService plantListService = new MFPlantListService();
+		// Check for a logged in user
+		if (request.getUserPrincipal() != null && request.isUserInRole("admin")) {
+			// UserProvider provides access to the user storage
+			UserProvider users = null;
+			try {
+				users = UserManagementAccessor.getUserProvider();
+				// Read the currently logged in user from the user storage
+				User user = users.getUser(request.getUserPrincipal().getName());
+				String plant_id = user.getAttribute("PLANT_ID");
+				if (plant_id == null) {// this means he is the admin
+					List<MFPlant> plantList = plantListService
+							.getMFPlantList(request);
+					writePlantList(request, response, plants, plantList);
+
 				}
-				response.setContentType("application/json");
-				response.getWriter().write(plants.toString());
+
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			else if(request.isUserInRole("user")){			
-				//List<MFPlant> plantList = plantListService.getMFPlantByEmployeeId(request);
-//				for (Iterator iterator = plantList.iterator(); iterator
-//						.hasNext();) {
-//					MFPlant mfPlant = (MFPlant) iterator.next();
-//					JSONObject plant = new JSONObject();
-//					plant.put("id", mfPlant.getId());
-//					plant.put("co", mfPlant.getCo());
-//					plant.put("o3", mfPlant.getO3());
-//					plant.put("pm10", mfPlant.getPm10());
-//					plant.put("pm25", mfPlant.getPm25());
-//					plant.put("so2", mfPlant.getSo2());
-//					plant.put("no2", mfPlant.getNo2());
-//					plants.put(plant);			
-//				}
-//				response.setContentType("application/json");
-//				response.getWriter().write(plants.toString());
+
+		} else if (request.getUserPrincipal() != null
+				&& request.isUserInRole("user")) {
+
+			// UserProvider provides access to the user storage
+			UserProvider users = null;
+			try {
+				users = UserManagementAccessor.getUserProvider();
+				// Read the currently logged in user from the user storage
+				User user = users.getUser(request.getUserPrincipal().getName());
+				String plant_id = user.getAttribute("PLANT_ID");
+				List<MFPlant> plantList= plantListService.getMFPlantsById(plant_id);
+				writePlantList(request, response, plants, plantList);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 	}
 
+	private void writePlantList(HttpServletRequest request,
+			HttpServletResponse response, JSONArray plants,
+			List<MFPlant> plantList) throws IOException {
+		for (Iterator<MFPlant> iterator = plantList.iterator(); iterator
+				.hasNext();) {
+			MFPlant mfPlant = (MFPlant) iterator.next();
+			JSONObject plant = new JSONObject();
+			plant.put("id", mfPlant.getId());
+			plant.put("o3", mfPlant.getO3());
+			plant.put("dateField", mfPlant.getDateField());
+			plants.put(plant);
+		}
+		response.setContentType("application/json");
+		response.getWriter().write(plants.toString());
+	}
+
 	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+	 *      response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 	}
 

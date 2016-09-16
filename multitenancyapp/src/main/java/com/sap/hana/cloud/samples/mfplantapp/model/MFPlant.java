@@ -19,7 +19,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Entity
 @Table(name = "MFPLANTAPP_CITY")
 @NamedQueries({@NamedQuery(name = "MFPlants", query = "SELECT c FROM MFPlant c"), 
-	           @NamedQuery(name = "MFPlantById", query = "SELECT c FROM MFPlant c WHERE c.id = :id")})
+	           @NamedQuery(name = "MFPlantById", query = "SELECT c FROM MFPlant c WHERE c.id = :id"),
+	           @NamedQuery(name = "MFPlantByIdAndDate", query = "SELECT c FROM MFPlant c WHERE c.id = :id AND c.dateField BETWEEN :startDate AND :endDate ")})
 
 @XmlRootElement(name ="plantlist")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -32,30 +33,19 @@ public class MFPlant extends BaseObject implements Serializable
 	@Column(name="ID", length = 36, nullable=true)
 	String id = null;
 	
-	@Column(name="CO", length = 10, nullable=true)
-	String co = null;
-	
 	@Column(name="O3", length = 10, nullable=true)
 	String o3 = null;
 	
-	@Column(name="PM10", length = 10, nullable=true)
-	String pm10 = null;
+	@Column(name = "DATE_FIELD")
+    java.sql.Date dateField=null;
 	
-	@Column(name="PM25", length = 10, nullable=true)
-	String pm25 = null;
-	
-	@Column(name="SO2", length = 10, nullable=true)
-	String so2 = null;
-	
-	@Column(name="NO2", length = 10, nullable=true)
-	String no2 = null;
-	
-	public String getCo() {
-		return co;
+
+	public java.sql.Date getDateField() {
+		return dateField;
 	}
 
-	public void setCo(String co) {
-		this.co = co;
+	public void setDateField(java.sql.Date dateField) {
+		this.dateField = dateField;
 	}
 
 	public String getO3() {
@@ -64,38 +54,6 @@ public class MFPlant extends BaseObject implements Serializable
 
 	public void setO3(String o3) {
 		this.o3 = o3;
-	}
-
-	public String getPm10() {
-		return pm10;
-	}
-
-	public void setPm10(String pm10) {
-		this.pm10 = pm10;
-	}
-
-	public String getPm25() {
-		return pm25;
-	}
-
-	public void setPm25(String pm25) {
-		this.pm25 = pm25;
-	}
-
-	public String getSo2() {
-		return so2;
-	}
-
-	public void setSo2(String so2) {
-		this.so2 = so2;
-	}
-
-	public String getNo2() {
-		return no2;
-	}
-
-	public void setNo2(String no2) {
-		this.no2 = no2;
 	}
 		
 	public String getId()
