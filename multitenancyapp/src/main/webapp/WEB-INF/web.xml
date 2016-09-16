@@ -36,19 +36,9 @@
     <servlet-name>CXFServlet</servlet-name>
     <url-pattern>/api/v1/*</url-pattern>
   </servlet-mapping>
-  <servlet>
-    <description></description>
-    <display-name>MFPlantProtectedServlet</display-name>
-    <servlet-name>MFPlantProtectedServlet</servlet-name>
-    <servlet-class>com.sap.hana.cloud.samples.mfplantapp.MFPlantProtectedServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>MFPlantProtectedServlet</servlet-name>
-    <url-pattern>/plants</url-pattern>
-  </servlet-mapping>
   <security-constraint>
     <web-resource-collection>
-      <web-resource-name>Protected Area</web-resource-name>
+      <web-resource-name>user Area</web-resource-name>
       <url-pattern>/</url-pattern>
       <url-pattern>/api/v1/plantlist/*</url-pattern>
     </web-resource-collection>

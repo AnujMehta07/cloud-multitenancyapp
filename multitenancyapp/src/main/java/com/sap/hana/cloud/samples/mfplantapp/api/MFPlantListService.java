@@ -29,6 +29,11 @@ import org.eclipse.persistence.config.PersistenceUnitProperties;
 import com.sap.cloud.account.Tenant;
 import com.sap.cloud.account.TenantContext;
 import com.sap.hana.cloud.samples.mfplantapp.model.MFPlant;
+import com.sap.security.um.service.UserManagementAccessor;
+import com.sap.security.um.user.PersistenceException;
+import com.sap.security.um.user.UnsupportedUserAttributeException;
+import com.sap.security.um.user.User;
+import com.sap.security.um.user.UserProvider;
 
 /**
  * {@link MFPlantListService}
@@ -41,7 +46,8 @@ public class MFPlantListService {
 	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/")
-	public List<MFPlant> getMFPlantList(@Context HttpServletRequest request) {
+	public List<MFPlant> getMFPlantList(@Context HttpServletRequest request)
+			throws PersistenceException, UnsupportedUserAttributeException {
 		List<MFPlant> retVal = null;
 		TenantContext tenantContext = getTenantContext();
 		Tenant tenant = tenantContext.getTenant();
@@ -50,7 +56,24 @@ public class MFPlantListService {
 		props.put("elipselink.tenant.id", tenantId);
 		EntityManager em = this.getEntityManagerFactory().createEntityManager(
 				props);
-		retVal = em.createNamedQuery("MFPlants").getResultList();
+		// UserProvider provides access to the user storage
+		UserProvider userProvider = UserManagementAccessor.getUserProvider();
+		// Read the currently logged in user from the user storage
+		User user = userProvider.getUser(request.getUserPrincipal().getName());
+		String plant_id = user.getAttribute("PLANT_ID");
+
+		if (request.getUserPrincipal() != null && request.isUserInRole("admin")) {
+
+			if (plant_id == null) { // this means he is the admin
+				retVal = em.createNamedQuery("MFPlants").getResultList();
+			}
+		} else if (request.getUserPrincipal() != null
+				&& request.isUserInRole("user")) {
+			if(plant_id!=null){
+				retVal=getMFPlantsById(plant_id);
+			}
+		}
+
 		return retVal;
 	}
 
@@ -65,15 +88,9 @@ public class MFPlantListService {
 		props.put("elipselink.tenant.id", tenantId);
 		EntityManager em = this.getEntityManagerFactory().createEntityManager(
 				props);
-		try {
-			Query query = em.createNamedQuery("MFPlantById");
-			query.setParameter("id", id);
-			retVal = query.getResultList();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		} finally {
-			em.close();
-		}
+		Query query = em.createNamedQuery("MFPlantById");
+		query.setParameter("id", id);
+		retVal = query.getResultList();
 		return retVal;
 	}
 
@@ -92,17 +109,11 @@ public class MFPlantListService {
 		props.put("elipselink.tenant.id", tenantId);
 		EntityManager em = this.getEntityManagerFactory().createEntityManager(
 				props);
-		try {
-			Query query = em.createNamedQuery("MFPlantByIdAndDate");
-			query.setParameter("id", id);
-			query.setParameter("startDate", startDate);
-			query.setParameter("endDate", endDate);
-			retVal = query.getResultList();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		} finally {
-			em.close();
-		}
+		Query query = em.createNamedQuery("MFPlantByIdAndDate");
+		query.setParameter("id", id);
+		query.setParameter("startDate", startDate);
+		query.setParameter("endDate", endDate);
+		retVal = query.getResultList();
 		return retVal;
 	}
 
@@ -112,7 +123,7 @@ public class MFPlantListService {
 	public List<MFPlant> addMFPlant(@Context SecurityContext ctx,
 			@PathParam(value = "id") String id,
 			@PathParam(value = "date") Date date,
-			@PathParam(value = "o3") String o3 ){
+			@PathParam(value = "o3") String o3) {
 		List<MFPlant> retVal = null;
 		MFPlant plant = new MFPlant();
 		plant.setId(id);
@@ -125,16 +136,10 @@ public class MFPlantListService {
 		props.put("elipselink.tenant.id", tenantId);
 		EntityManager em = this.getEntityManagerFactory().createEntityManager(
 				props);
-		try {
-			em.getTransaction().begin();
-			em.persist(plant);
-			em.getTransaction().commit();
-			retVal = em.createNamedQuery("MFPlants").getResultList();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		} finally {
-			em.close();
-		}
+		em.getTransaction().begin();
+		em.persist(plant);
+		em.getTransaction().commit();
+		retVal = em.createNamedQuery("MFPlants").getResultList();
 		return retVal;
 	}
 
@@ -151,22 +156,15 @@ public class MFPlantListService {
 		props.put("elipselink.tenant.id", tenantId);
 		EntityManager em = this.getEntityManagerFactory().createEntityManager(
 				props);
-		try {
-			Query query = em.createNamedQuery("MFPlantById");
-			query.setParameter("id", id);
-			MFPlant city = (MFPlant) query.getSingleResult();
-			if (city != null) {
-				em.getTransaction().begin();
-				em.remove(city);
-				em.getTransaction().commit();
-			}
-			retVal = em.createNamedQuery("MFPlants").getResultList();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		} finally {
-			em.close();
+		Query query = em.createNamedQuery("MFPlantById");
+		query.setParameter("id", id);
+		MFPlant city = (MFPlant) query.getSingleResult();
+		if (city != null) {
+			em.getTransaction().begin();
+			em.remove(city);
+			em.getTransaction().commit();
 		}
-
+		retVal = em.createNamedQuery("MFPlants").getResultList();
 		return retVal;
 	}
 
