@@ -39,6 +39,15 @@ public class MFPlant extends BaseObject implements Serializable
 	@Column(name = "DATE_FIELD")
     java.sql.Date dateField=null;
 	
+	@Column(name="location", length = 36, nullable=true)
+	String location = null;
+	
+	public String getLocation() {
+		return location;
+	}
+	public void setLocation(String location) {
+		this.location = location;
+	}
 
 	public java.sql.Date getDateField() {
 		return dateField;

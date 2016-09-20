@@ -1,16 +1,17 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>com.sap.hana.cloud.samples</groupId>
-  <artifactId>multitenancyapp</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <packaging>war</packaging>
- <properties>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.sap.hana.cloud.samples</groupId>
+	<artifactId>multitenancyapp</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>war</packaging>
+	<properties>
 		<java-version>1.7</java-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<org.slf4j-version>1.7.2</org.slf4j-version>
-		
-		<com.sap.cloud.neo.api-version>1.106.11</com.sap.cloud.neo.api-version>	
-		
+
+		<com.sap.cloud.neo.api-version>1.106.11</com.sap.cloud.neo.api-version>
+
 		<org.apache.cxf-version>3.0.0</org.apache.cxf-version>
 		<org.codehaus.jackson-version>1.9.9</org.codehaus.jackson-version>
 	</properties>
@@ -30,26 +31,26 @@
 
 	<dependencies>
 		<dependency>
-	      	<groupId>com.sap.cloud</groupId>
-	      	<artifactId>neo-java-web-api</artifactId>
-	      	<version>${com.sap.cloud.neo.api-version}</version>
-	      	<scope>provided</scope>
-	      	<exclusions>
-	      		<exclusion>
-	      			<artifactId>persistence-api</artifactId>
-	      			<groupId>javax.persistence</groupId>
-	      		</exclusion>
-	      	</exclusions>
+			<groupId>com.sap.cloud</groupId>
+			<artifactId>neo-java-web-api</artifactId>
+			<version>${com.sap.cloud.neo.api-version}</version>
+			<scope>provided</scope>
+			<exclusions>
+				<exclusion>
+					<artifactId>persistence-api</artifactId>
+					<groupId>javax.persistence</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
-	  	
-	  	<!-- Servlet -->
+
+		<!-- Servlet -->
 		<dependency>
-		  	<groupId>org.glassfish</groupId>
-		  	<artifactId>javax.servlet</artifactId>
-		  	<version>3.1-b33</version>
-		  	<scope>provided</scope>
+			<groupId>org.glassfish</groupId>
+			<artifactId>javax.servlet</artifactId>
+			<version>3.1-b33</version>
+			<scope>provided</scope>
 		</dependency>
-		
+
 		<!-- Apache http client -->
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
@@ -63,8 +64,8 @@
 			<version>4.1.4</version>
 			<scope>provided</scope>
 		</dependency>
-		
-		
+
+
 		<!-- Apache CXF -->
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
@@ -73,30 +74,30 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-            <version>${org.apache.cxf-version}</version>
-            <scope>runtime</scope>
-        </dependency>
-		
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-frontend-jaxrs</artifactId>
+			<version>${org.apache.cxf-version}</version>
+			<scope>runtime</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>javax.ws.rs</groupId>
-		    <artifactId>javax.ws.rs-api</artifactId>
-		    <version>2.0</version>
+			<artifactId>javax.ws.rs-api</artifactId>
+			<version>2.0</version>
 		</dependency>
-		
-		<!-- EclipseLink (and JPA) --> 
+
+		<!-- EclipseLink (and JPA) -->
 		<dependency>
-		    <groupId>org.eclipse.persistence</groupId>
-		    <artifactId>eclipselink</artifactId>
-		    <version>2.5.0</version>
-	      </dependency>
-		 <dependency>
-		     <groupId>org.eclipse.persistence</groupId>
-		     <artifactId>javax.persistence</artifactId>
-		     <version>2.1.0</version>
+			<groupId>org.eclipse.persistence</groupId>
+			<artifactId>eclipselink</artifactId>
+			<version>2.5.0</version>
 		</dependency>
-		
+		<dependency>
+			<groupId>org.eclipse.persistence</groupId>
+			<artifactId>javax.persistence</artifactId>
+			<version>2.1.0</version>
+		</dependency>
+
 		<!-- Derby -->
 		<dependency>
 			<groupId>org.apache.derby</groupId>
@@ -110,7 +111,13 @@
 			<version>10.9.1.0</version>
 			<scope>runtime</scope>
 		</dependency>
-		
+
+		<dependency>
+			<groupId>maven-plugins</groupId>
+			<artifactId>maven-sourceforge-plugin</artifactId>
+			<version>1.3</version>
+		</dependency>
+
 		<!-- Jackson -->
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
@@ -118,13 +125,13 @@
 			<version>${org.codehaus.jackson-version}</version>
 			<scope>runtime</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
 			<version>20160212</version>
 		</dependency>
-	
+
 	</dependencies>
 
 	<build>
@@ -161,24 +168,24 @@
 				<version>1.7</version>
 				<executions>
 					<execution>
-					<id>compile</id>
-					<phase>compile</phase>
-					<configuration>
-						<target>
-							<property name="compile_classpath" refid="maven.compile.classpath" />
-							<property name="runtime_classpath" refid="maven.runtime.classpath" />
-							<property name="test_classpath" refid="maven.test.classpath" />
-							<property name="plugin_classpath" refid="maven.plugin.classpath" />
-							 
-							<echo message="compile classpath: ${compile_classpath}" />
-							<echo message="runtime classpath: ${runtime_classpath}" />
-							<echo message="test classpath: ${test_classpath}" />
-							<echo message="plugin classpath: ${plugin_classpath}" />
-						</target>
-					</configuration>
-					<goals>
-						<goal>run</goal>
-					</goals>
+						<id>compile</id>
+						<phase>compile</phase>
+						<configuration>
+							<target>
+								<property name="compile_classpath" refid="maven.compile.classpath" />
+								<property name="runtime_classpath" refid="maven.runtime.classpath" />
+								<property name="test_classpath" refid="maven.test.classpath" />
+								<property name="plugin_classpath" refid="maven.plugin.classpath" />
+
+								<echo message="compile classpath: ${compile_classpath}" />
+								<echo message="runtime classpath: ${runtime_classpath}" />
+								<echo message="test classpath: ${test_classpath}" />
+								<echo message="plugin classpath: ${plugin_classpath}" />
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
 					</execution>
 				</executions>
 			</plugin>
@@ -217,44 +224,44 @@
 						</lifecycleMappingMetadata>
 					</configuration>
 				</plugin>
-				
+
 				<!-- leading by example -->
 				<plugin>
-			        <groupId>org.apache.maven.plugins</groupId>
-			        <artifactId>maven-dependency-plugin</artifactId>
-			        <version>2.10</version>
-			        <executions>
-			          <execution>
-			            <id>analyze</id>
-			            <goals>
-			              <goal>analyze</goal>
-			            </goals>
-			          </execution>
-			        </executions>
-			        <configuration>
-			          <failOnWarning>false</failOnWarning>
-			          <ignoredDependencies>
-			            <ignoredDependency>org.apache.derby:*</ignoredDependency>
-			            <ignoredDependency>org.apache.cxf:*</ignoredDependency>
-			            <ignoredDependency>org.codehaus.jackson:*</ignoredDependency>
-			          </ignoredDependencies>
-			        </configuration>
-			      </plugin>
-		    </plugins>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>2.10</version>
+					<executions>
+						<execution>
+							<id>analyze</id>
+							<goals>
+								<goal>analyze</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<failOnWarning>false</failOnWarning>
+						<ignoredDependencies>
+							<ignoredDependency>org.apache.derby:*</ignoredDependency>
+							<ignoredDependency>org.apache.cxf:*</ignoredDependency>
+							<ignoredDependency>org.codehaus.jackson:*</ignoredDependency>
+						</ignoredDependencies>
+					</configuration>
+				</plugin>
+			</plugins>
 		</pluginManagement>
 	</build>
-	
+
 	<organization>
-        <name>SAP SE</name>
-        <url>http://www.sap.com</url>
-    </organization>
-    
-    <developers>
-        <developer>
-            <name>SAP HANA Cloud Platform</name>
-            <url>http://hcp.sap.com</url>
-            <organization>SAP SE</organization>
-            <organizationUrl>http://www.sap.com/</organizationUrl>
-        </developer>
-    </developers>
+		<name>SAP SE</name>
+		<url>http://www.sap.com</url>
+	</organization>
+
+	<developers>
+		<developer>
+			<name>SAP HANA Cloud Platform</name>
+			<url>http://hcp.sap.com</url>
+			<organization>SAP SE</organization>
+			<organizationUrl>http://www.sap.com/</organizationUrl>
+		</developer>
+	</developers>
 </project>

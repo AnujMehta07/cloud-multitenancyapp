@@ -12,6 +12,10 @@
     <res-ref-name>plantdetails</res-ref-name>
     <res-type>com.sap.core.connectivity.api.http.HttpDestination</res-type>
   </resource-ref>
+   <resource-ref>
+    <res-ref-name>plantopenaq</res-ref-name>
+    <res-type>com.sap.core.connectivity.api.http.HttpDestination</res-type>
+  </resource-ref>
   <resource-ref>
     <res-ref-name>TenantContext</res-ref-name>
     <res-type>com.sap.cloud.account.TenantContext</res-type>
