@@ -1,224 +1,143 @@
 package com.sap.hana.cloud.samples.mfplantapp.api;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.Proxy;
+import java.net.URL;
 import java.text.MessageFormat;
-
-import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-
-import com.sap.core.connectivity.api.http.HttpDestination;
+import com.sap.cloud.account.TenantContext;
+import com.sap.core.connectivity.api.configuration.ConnectivityConfiguration;
+import com.sap.core.connectivity.api.configuration.DestinationConfiguration;
 
 @Path("/mfplantinfo")
 @Produces({ MediaType.APPLICATION_JSON })
 public class MFPlantDetailService {
 	private static final int COPY_CONTENT_BUFFER_SIZE = 1024;
+	private static final String ON_PREMISE_PROXY = "OnPremise";
+
 	@GET
 	@Path("/all")
 	@Produces({ MediaType.APPLICATION_JSON })
-	public Response getMFPlantsInformation() {
-		HttpClient httpClient = null;
-		HttpGet httpGet = null;
-		String msgBody = null;
-		try {
-			// Get HTTP destination
-			Context ctx = new InitialContext();
-			HttpDestination destination = (HttpDestination) ctx.lookup("java:comp/env/" + "plantdetails");
-			// Create HTTP client
-			httpClient = destination.createHttpClient();
-			final String baseURL = destination.getURI().toString();
-			// Execute HTTP request
-			httpGet = new HttpGet(baseURL);
-			HttpResponse httpResponse = httpClient.execute(httpGet);
-			// Check response status code
-			int statusCode = httpResponse.getStatusLine().getStatusCode();
-			// copy content from the incoming response to the outgoing response
-			HttpEntity entity = null;
-			if (httpResponse != null) {
-				entity = httpResponse.getEntity();
-			}
-			msgBody = getResponseBodyasString(entity);
-			if (statusCode == HttpServletResponse.SC_OK) {
-				return Response.ok(msgBody).build();
-			} else {
-				return Response.status(statusCode).entity(msgBody).build();
-			}
+	public String getMFPlantsInformation() throws Exception {
+		DestinationConfiguration destConfiguration = getDestConfiguration();
+		// Get the destination URL
+		String value = destConfiguration.getProperty("URL");
+		URL destinationURL = new URL(value);
+		String result = retrieveOnPremisePlantDetails(destConfiguration, destinationURL);
+		return result;
 
-		} catch (RuntimeException e) {
-			// In case of an unexpected exception we abort the HTTP request
-			// in order to shut down the underlying connection immediately.
-			if (httpGet != null) {
-				httpGet.abort();
-			}
-			// unexpected runtime error
-			String errorMessage = "'Houston, we have a problem!' : "
-					+ e.getMessage() + ". See logs for details.";
-
-			msgBody = errorMessage;
-		} catch (NamingException e) {
-			// Lookup of destination failed
-			String errorMessage = "Lookup of destination failed with reason: "
-					+ e.getMessage()
-					+ ". See "
-					+ "logs for details. Hint: Make sure to have the destination "
-					+ "[plantdetails-destination]" + " configured.";
-
-			msgBody = errorMessage;
-		} catch (Exception e) {
-			// Connectivity operation failed
-			String errorMessage = "Connectivity operation failed with reason: "
-					+ e.getMessage()
-					+ ". See "
-					+ "logs for details. Hint: Make sure to have an HTTP proxy configured in your "
-					+ "local Eclipse environment in case your environment uses "
-					+ "an HTTP proxy for the outbound Internet "
-					+ "communication.";
-
-			msgBody = errorMessage;
-		} finally {
-			// When HttpClient instance is no longer needed, shut down the
-			// connection manager to ensure immediate
-			// deallocation of all system resources
-			if (httpClient != null) {
-				httpClient.getConnectionManager().shutdown();
-			}
-		}
-
-		// if we end up here something went really bad
-		return Response.serverError().build();
 	}
 
-	
-	@GET
-	@Path("/")
-	@Produces({ MediaType.APPLICATION_JSON })
-	public Response getMFPlantInformation(@QueryParam(value = "id") String id) {
-		HttpClient httpClient = null;
-		HttpGet httpGet = null;
-		String msgBody = null;
-		try {
-			// Get HTTP destination
-			Context ctx = new InitialContext();
-			HttpDestination destination = (HttpDestination) ctx.lookup("java:comp/env/" + "plantdetails");
-			// Create HTTP client
-			httpClient = destination.createHttpClient();
-			final String baseURL = destination.getURI().toString();
-			String destinationURL = null;
-			destinationURL = MessageFormat.format("{0}?id={1}", baseURL, id);
-			// Execute HTTP request
-			httpGet = new HttpGet(destinationURL);
-			HttpResponse httpResponse = httpClient.execute(httpGet);
-			// Check response status code
-			int statusCode = httpResponse.getStatusLine().getStatusCode();
-			// copy content from the incoming response to the outgoing response
-			HttpEntity entity = null;
-			if (httpResponse != null) {
-				entity = httpResponse.getEntity();
-			}
-			msgBody = getResponseBodyasString(entity);
-			if (statusCode == HttpServletResponse.SC_OK) {
-				return Response.ok(msgBody).build();
-			} else {
-				return Response.status(statusCode).entity(msgBody).build();
-			}
-
-		} catch (RuntimeException e) {
-			// In case of an unexpected exception we abort the HTTP request
-			// in order to shut down the underlying connection immediately.
-			if (httpGet != null) {
-				httpGet.abort();
-			}
-			// unexpected runtime error
-			String errorMessage = "'Houston, we have a problem!' : "
-					+ e.getMessage() + ". See logs for details.";
-
-			msgBody = errorMessage;
-		} catch (NamingException e) {
-			// Lookup of destination failed
-			String errorMessage = "Lookup of destination failed with reason: "
-					+ e.getMessage()
-					+ ". See "
-					+ "logs for details. Hint: Make sure to have the destination "
-					+ "[plantdetails-destination]" + " configured.";
-
-			msgBody = errorMessage;
-		} catch (Exception e) {
-			// Connectivity operation failed
-			String errorMessage = "Connectivity operation failed with reason: "
-					+ e.getMessage()
-					+ ". See "
-					+ "logs for details. Hint: Make sure to have an HTTP proxy configured in your "
-					+ "local Eclipse environment in case your environment uses "
-					+ "an HTTP proxy for the outbound Internet "
-					+ "communication.";
-
-			msgBody = errorMessage;
-		} finally {
-			// When HttpClient instance is no longer needed, shut down the
-			// connection manager to ensure immediate
-			// deallocation of all system resources
-			if (httpClient != null) {
-				httpClient.getConnectionManager().shutdown();
-			}
-		}
-
-		// if we end up here something went really bad
-		return Response.serverError().build();
+	private DestinationConfiguration getDestConfiguration() throws NamingException {
+		// Look up the connectivity configuration API
+		javax.naming.Context ctx = new InitialContext();
+		ConnectivityConfiguration configuration = (ConnectivityConfiguration) ctx
+				.lookup("java:comp/env/connectivityConfiguration");
+		// Get destination configuration for "destinationName"
+		DestinationConfiguration destConfiguration = configuration.getConfiguration("plantdetails");
+		return destConfiguration;
 	}
 	
-	
+	public String getMFPlantInformation(String id) throws Exception {
+		DestinationConfiguration destConfiguration = getDestConfiguration();
+		// Get the destination URL
+		String baseURL = destConfiguration.getProperty("URL");
+		String formattedURL = null;
+		formattedURL = MessageFormat.format("{0}?id={1}", baseURL, id);
+		URL destinationURL=new URL(formattedURL);
+		String result = retrieveOnPremisePlantDetails(destConfiguration, destinationURL);
+		return result;
+	}
+
+	private String retrieveOnPremisePlantDetails(DestinationConfiguration destConfiguration, URL destinationURL)
+			throws MalformedURLException, IOException, Exception {
+		HttpURLConnection urlConnection;
+		String proxyType = destConfiguration.getProperty("ProxyType");
+		Proxy proxy = getProxy(proxyType);
+		urlConnection = (HttpURLConnection) destinationURL.openConnection(proxy);
+		injectHeader(urlConnection, proxyType);
+		// Copy content from the incoming response to the outgoing response
+		InputStream instream = urlConnection.getInputStream();
+		String result = getResponseBodyasString(instream);
+		return result;
+	}
 	/**
 	 * Extracts the response body from the specified {@link HttpEntity} and
-	 * returns it as a UTF-8 encoded String.
+	 * returns it as a UTF-8 encoded JSON Array.retrieve 
 	 * 
 	 * @param entity
-	 *            The {@link HttpEntity} to extract the message body from
-	 * @return The UTF-8 encoded String representation of the message body
-	 * @throws
+	 *            The {@link HttpEntity} to extract the message body
+	 *            from @return The UTF-8 encoded JSON Array representation of
+	 *            the message body
 	 */
-	static String getResponseBodyasString(HttpEntity entity) throws Exception {
+	static String getResponseBodyasString(InputStream instream) throws Exception {
 		String retVal = null;
-
-		if (entity != null) {
-			InputStream instream = entity.getContent();
-			ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-
-			try {
-				byte[] buffer = new byte[COPY_CONTENT_BUFFER_SIZE];
-				int len;
-				while ((len = instream.read(buffer)) != -1) {
-					outstream.write(buffer, 0, len);
-				}
-			} catch (IOException e) {
-				// In case of an IOException the connection will be released
-				// back to the connection manager automatically
-				throw e;
-			} finally {
-				// Closing the input stream will trigger connection release
-				try {
-					instream.close();
-				} catch (Exception e) {
-					// Ignore
-				}
+		ByteArrayOutputStream outstream = new ByteArrayOutputStream();
+		try {
+			byte[] buffer = new byte[COPY_CONTENT_BUFFER_SIZE];
+			int len;
+			while ((len = instream.read(buffer)) != -1) {
+				outstream.write(buffer, 0, len);
 			}
-
-			retVal = outstream.toString("UTF-8");
+		} catch (IOException e) {
+			// In case of an IOException the connection will be released
+			// back to the connection manager automatically
+			throw e;
+		} finally {
+			// Closing the input stream will trigger connection release
+			try {
+				instream.close();
+			} catch (Exception e) {
+				// Ignore
+			}
 		}
-
+		retVal = outstream.toString("UTF-8");
 		return retVal;
+
 	}
+	
+	private void injectHeader(HttpURLConnection urlConnection, String proxyType) {
+        if (ON_PREMISE_PROXY.equals(proxyType)) {
+            // Insert header for on-premise connectivity with the consumer account name
+            urlConnection.setRequestProperty("SAP-Connectivity-ConsumerAccount",
+                    getTenantContext().getTenant().getAccount().getId());
+        }
+    }
+	
+	protected TenantContext getTenantContext() {
+		TenantContext tenantContext = null;
+		try {
+			InitialContext ctx = new InitialContext();
+			tenantContext = (TenantContext) ctx.lookup("java:comp/env/TenantContext");
+		} catch (NamingException ex) {
+			ex.printStackTrace();
+		}
+		return tenantContext;
+	}
+
+	private Proxy getProxy(String proxyType) {
+		 String proxyHost = null;
+	        int proxyPort;
+	        if (ON_PREMISE_PROXY.equals(proxyType)) {
+	            // Get proxy for on-premise destinations
+	            proxyHost = System.getenv("HC_OP_HTTP_PROXY_HOST");
+	            proxyPort = Integer.parseInt(System.getenv("HC_OP_HTTP_PROXY_PORT"));
+	        } else {
+	            // Get proxy for internet destinations
+	            proxyHost = System.getProperty("https.proxyHost");
+	            proxyPort = Integer.parseInt(System.getProperty("https.proxyPort"));
+	        }
+	        return new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, proxyPort));
+	}
+
 }

@@ -9,10 +9,18 @@
     <res-type>javax.sql.DataSource</res-type>
   </resource-ref>
   <resource-ref>
+    <res-ref-name>connectivityConfiguration</res-ref-name>
+    <res-type>com.sap.core.connectivity.api.configuration.ConnectivityConfiguration</res-type>
+  </resource-ref>
+  <resource-ref>
+    <res-ref-name>KeyStoreService</res-ref-name>
+    <res-type>com.sap.cloud.crypto.keystore.api.KeyStoreService</res-type>
+  </resource-ref>
+  <resource-ref>
     <res-ref-name>plantdetails</res-ref-name>
     <res-type>com.sap.core.connectivity.api.http.HttpDestination</res-type>
   </resource-ref>
-   <resource-ref>
+  <resource-ref>
     <res-ref-name>plantopenaq</res-ref-name>
     <res-type>com.sap.core.connectivity.api.http.HttpDestination</res-type>
   </resource-ref>
@@ -20,6 +28,14 @@
     <res-ref-name>TenantContext</res-ref-name>
     <res-type>com.sap.cloud.account.TenantContext</res-type>
   </resource-ref>
+ <servlet>
+    <servlet-name>SSLExampleServlet</servlet-name>
+    <servlet-class>com.sap.hana.cloud.samples.mfplantapp.api.SSLExampleServlet</servlet-class>
+  </servlet> 
+ <servlet-mapping>
+    <servlet-name>SSLExampleServlet</servlet-name>
+    <url-pattern>/SSLExampleServlet</url-pattern>
+  </servlet-mapping>
   <servlet>
     <servlet-name>CXFServlet</servlet-name>
     <servlet-class>org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet</servlet-class>
