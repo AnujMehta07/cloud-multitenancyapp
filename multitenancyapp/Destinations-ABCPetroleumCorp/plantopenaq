@@ -1,0 +1,8 @@
+#
+#Thu Oct 20 10:38:26 UTC 2016
+Name=plantopenaq
+URL=https\://api.openaq.org/v1/measurements
+ProxyType=Internet
+Type=HTTP
+CloudConnectorVersion=2
+Authentication=AppToAppSSO

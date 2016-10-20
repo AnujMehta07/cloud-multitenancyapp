@@ -1,0 +1,12 @@
+#
+#Thu Oct 20 10:45:58 UTC 2016
+Description=Plant list
+Type=HTTP
+Authentication=AppToAppSSO
+WebIDEUsage=odata_gen
+Name=plantlist
+WebIDEEnabled=true
+CloudConnectorVersion=2
+URL=https\://mfplantapphcpappsprog.ap1.hana.ondemand.com/multitenancyapp
+ProxyType=Internet
+WebIDESystem=plantlist

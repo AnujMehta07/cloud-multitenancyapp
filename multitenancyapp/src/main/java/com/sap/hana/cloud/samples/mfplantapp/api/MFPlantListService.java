@@ -46,12 +46,15 @@ import com.sap.cloud.crypto.keystore.api.KeyStoreService;
 import com.sap.core.connectivity.api.configuration.ConnectivityConfiguration;
 import com.sap.core.connectivity.api.configuration.DestinationConfiguration;
 import com.sap.hana.cloud.samples.mfplantapp.model.MFPlant;
-import com.sap.hana.cloud.samples.mfplantapp.model.OGPlantAirQuality;
+import com.sap.hana.cloud.samples.mfplantapp.model.OGPlantAirQualityDayData;
+import com.sap.hana.cloud.samples.mfplantapp.model.OGPlantsAirQualityData;
+import com.sap.hana.cloud.samples.mfplantapp.model.OGPlantsAirQualityWeeklyData;
 import com.sap.security.um.service.UserManagementAccessor;
 import com.sap.security.um.user.PersistenceException;
 import com.sap.security.um.user.UnsupportedUserAttributeException;
 import com.sap.security.um.user.User;
 import com.sap.security.um.user.UserProvider;
+
 /**
  * {@link MFPlantListService}
  * 
@@ -62,11 +65,12 @@ import com.sap.security.um.user.UserProvider;
 @Produces({ MediaType.APPLICATION_JSON })
 public class MFPlantListService {
 	private static final int COPY_CONTENT_BUFFER_SIZE = 1024;
+
 	@GET
 	@Path("/")
-	public List<OGPlantAirQuality> getPlantAirQualityDetails(@Context HttpServletRequest request,
+	public OGPlantsAirQualityData getPlantAirQualityDetails(@Context HttpServletRequest request,
 			@Context HttpServletResponse response) throws Exception {
-		List<OGPlantAirQuality> OGPlantAirQualityList = new ArrayList<OGPlantAirQuality>();
+		List<OGPlantAirQualityDayData> OGPlantAirQualityList = new ArrayList<OGPlantAirQualityDayData>();
 		List<MFPlant> mfPlantList = null;
 		String tenantId = getTenantId();
 		Map<String, String> props = new HashMap<String, String>();
@@ -75,15 +79,18 @@ public class MFPlantListService {
 		boolean isAdmin = isUserAdmin(request);
 		if (isAdmin) {
 			mfPlantList = em.createNamedQuery("MFPlants").getResultList();
-			prepareOGPlantAirQualityList(OGPlantAirQualityList, mfPlantList, response);
-			return OGPlantAirQualityList;
+			OGPlantsAirQualityData ogPlantsAirQualityData = prepareOGPlantAirQualityList(mfPlantList, response);
+			ogPlantsAirQualityData.setRole("Area Manager" );
+			return ogPlantsAirQualityData;
 		} else {
 			String plant_id = getPlantId(request);
 			mfPlantList = getMFPlantsById(plant_id);
-			prepareOGPlantAirQualityList(OGPlantAirQualityList, mfPlantList, response);
-			return OGPlantAirQualityList;
+			OGPlantsAirQualityData ogPlantsAirQualityData = prepareOGPlantAirQualityList(mfPlantList, response);
+			ogPlantsAirQualityData.setRole("Supervisor");
+			return ogPlantsAirQualityData;
 		}
 	}
+
 	@GET
 	@Path("/{id}")
 	public List<MFPlant> getMFPlantsById(@PathParam(value = "id") String id) {
@@ -97,6 +104,7 @@ public class MFPlantListService {
 		retVal = query.getResultList();
 		return retVal;
 	}
+
 	@GET
 	@Path("/{id}/{startDate}/{endDate}")
 	public List<MFPlant> getMFPlantByIdAndDate(@PathParam(value = "id") String id,
@@ -114,7 +122,6 @@ public class MFPlantListService {
 		retVal = query.getResultList();
 		return retVal;
 	}
-	
 
 	@POST
 	@Path("/{id}/{date}/{o3}/{location}")
@@ -137,6 +144,7 @@ public class MFPlantListService {
 		retVal = em.createNamedQuery("MFPlants").getResultList();
 		return retVal;
 	}
+
 	@DELETE
 	@Path("/{id}")
 	public List<MFPlant> removeMFPlant(@PathParam(value = "id") String id, @Context SecurityContext ctx) {
@@ -147,15 +155,21 @@ public class MFPlantListService {
 		EntityManager em = this.getEntityManagerFactory().createEntityManager(props);
 		Query query = em.createNamedQuery("MFPlantById");
 		query.setParameter("id", id);
-		MFPlant city = (MFPlant) query.getSingleResult();
-		if (city != null) {
-			em.getTransaction().begin();
-			em.remove(city);
-			em.getTransaction().commit();
+		retVal = query.getResultList();
+		for (Iterator iterator = retVal.iterator(); iterator.hasNext();) {
+			MFPlant mfPlant = (MFPlant) iterator.next();
+			if (mfPlant != null) {
+				em.getTransaction().begin();
+				em.remove(mfPlant);
+				em.getTransaction().commit();
+			}
+
 		}
+
 		retVal = em.createNamedQuery("MFPlants").getResultList();
 		return retVal;
 	}
+
 	/**
 	 * Returns the <code>DefaultDB</code> {@link DataSource} via JNDI.
 	 * 
@@ -171,8 +185,10 @@ public class MFPlantListService {
 		}
 		return retVal;
 	}
+
 	/**
 	 * Returns the {@link EntityManagerFactory}
+	 * 
 	 * @return The {@link EntityManagerFactory}
 	 */
 	protected EntityManagerFactory getEntityManagerFactory() {
@@ -248,7 +264,7 @@ public class MFPlantListService {
 		return retVal;
 
 	}
-	
+
 	private SSLSocketFactory establishedSSLConnection(HttpServletResponse response, String host, int port)
 			throws Exception {
 		KeyStoreService keystoreService = null;
@@ -275,9 +291,14 @@ public class MFPlantListService {
 		socket.startHandshake();
 		return factory;
 	}
-	private void prepareOGPlantAirQualityList(List<OGPlantAirQuality> OGPlantAirQualityList, List<MFPlant> mfPlantList,
-			HttpServletResponse response) throws Exception {
+
+	private OGPlantsAirQualityData prepareOGPlantAirQualityList(List<MFPlant> mfPlantList, HttpServletResponse response)
+			throws Exception {
 		HttpsURLConnection urlConnection = null;
+		OGPlantsAirQualityData ogPlantsAirQualityData = new OGPlantsAirQualityData();
+		OGPlantsAirQualityWeeklyData plantAirQualityWeeklyData = new OGPlantsAirQualityWeeklyData();
+		List<OGPlantAirQualityDayData> plantAirQualityDataList = new ArrayList<>();
+		List<OGPlantsAirQualityWeeklyData> plantsAirQualityWeeklyDataList = new ArrayList<>();
 		// Look up the connectivity configuration API
 		javax.naming.Context ctx = new InitialContext();
 		ConnectivityConfiguration configuration = (ConnectivityConfiguration) ctx
@@ -300,22 +321,32 @@ public class MFPlantListService {
 			InputStream instream = urlConnection.getInputStream();
 			String msgBody = getResponseBodyasJSONArray(instream);
 			JSONObject cityO3 = new JSONObject(msgBody);
-			OGPlantAirQuality airQuality = new OGPlantAirQuality();
-			airQuality.setOgPlant(ogPlant);
+			OGPlantAirQualityDayData plantAirQualityData = new OGPlantAirQualityDayData();
+			plantAirQualityData.setOgPlant(ogPlant);
 			JSONArray jsonArray = cityO3.getJSONArray("results");
 			if (!jsonArray.isNull(0) && jsonArray.get(0) != null) {
 				JSONObject jsonObject = (JSONObject) jsonArray.get(0);
 				if (jsonObject != null) {
 					Double o3value = (Double) jsonObject.get("value");
-					airQuality.setCityO3(o3value.toString());
+					plantAirQualityData.setCityO3(o3value.toString());
 				}
 			} else {
 				// Value is not available
-				airQuality.setCityO3(" ");
+				plantAirQualityData.setCityO3(" ");
 			}
-			OGPlantAirQualityList.add(airQuality);
+			plantAirQualityDataList.add(plantAirQualityData);
 		}
+		plantAirQualityWeeklyData.setPlant101AirQualityWeeklyData(plantAirQualityDataList.subList(0, 5));
+		if (plantAirQualityDataList.size() > 5) {
+			plantAirQualityWeeklyData.setPlant102AirQualityWeeklyData(plantAirQualityDataList.subList(5, 10));
+			plantAirQualityWeeklyData.setPlant103AirQualityWeeklyData(plantAirQualityDataList.subList(10, 15));
+		}
+		plantsAirQualityWeeklyDataList.add(plantAirQualityWeeklyData);
+
+		ogPlantsAirQualityData.setPlantAirQualityWeeklyDataList(plantsAirQualityWeeklyDataList);
+		return ogPlantsAirQualityData;
 	}
+
 	private boolean isUserAdmin(HttpServletRequest request)
 			throws PersistenceException, UnsupportedUserAttributeException {
 		String plant_id = getPlantId(request);
@@ -330,6 +361,7 @@ public class MFPlantListService {
 		}
 		return false;
 	}
+
 	private String getPlantId(HttpServletRequest request)
 			throws PersistenceException, UnsupportedUserAttributeException {
 		// UserProvider provides access to the user storage
@@ -339,6 +371,7 @@ public class MFPlantListService {
 		String plant_id = user.getAttribute("PLANT_ID");
 		return plant_id;
 	}
+
 	private String getTenantId() {
 		TenantContext tenantContext = getTenantContext();
 		Tenant tenant = tenantContext.getTenant();

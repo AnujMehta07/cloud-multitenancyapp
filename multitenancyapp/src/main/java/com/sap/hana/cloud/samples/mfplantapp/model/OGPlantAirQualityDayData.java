@@ -1,10 +1,9 @@
 package com.sap.hana.cloud.samples.mfplantapp.model;
 
-public class OGPlantAirQuality {
+public class OGPlantAirQualityDayData {
 	private MFPlant ogPlant;
 	private String cityO3;
-	
-	
+
 	public MFPlant getOgPlant() {
 		return ogPlant;
 	}
@@ -18,8 +17,4 @@ public class OGPlantAirQuality {
 		this.cityO3 = cityO3;
 	}
 	
-	
-	
-
-
 }
