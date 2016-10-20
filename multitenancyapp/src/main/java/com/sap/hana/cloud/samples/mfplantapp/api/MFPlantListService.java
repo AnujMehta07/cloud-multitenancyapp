@@ -291,7 +291,7 @@ public class MFPlantListService {
 		socket.startHandshake();
 		return factory;
 	}
-
+//TO Do : Add boolean for isAdmin and prepare data accordingly.
 	private OGPlantsAirQualityData prepareOGPlantAirQualityList(List<MFPlant> mfPlantList, HttpServletResponse response)
 			throws Exception {
 		HttpsURLConnection urlConnection = null;

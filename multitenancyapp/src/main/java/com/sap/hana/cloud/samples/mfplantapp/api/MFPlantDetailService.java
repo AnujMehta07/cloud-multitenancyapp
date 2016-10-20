@@ -68,7 +68,7 @@ public class MFPlantDetailService {
 		injectHeader(urlConnection, proxyType);
 		// Copy content from the incoming response to the outgoing response
 		InputStream instream = urlConnection.getInputStream();
-		String result = getResponseBodyasString(instream);
+		String result = getResponseBodyAsString(instream);
 		return result;
 	}
 	/**
@@ -80,7 +80,7 @@ public class MFPlantDetailService {
 	 *            from @return The UTF-8 encoded JSON Array representation of
 	 *            the message body
 	 */
-	static String getResponseBodyasString(InputStream instream) throws Exception {
+	static String getResponseBodyAsString(InputStream instream) throws Exception {
 		String retVal = null;
 		ByteArrayOutputStream outstream = new ByteArrayOutputStream();
 		try {
@@ -108,7 +108,7 @@ public class MFPlantDetailService {
 	
 	private void injectHeader(HttpURLConnection urlConnection, String proxyType) {
         if (ON_PREMISE_PROXY.equals(proxyType)) {
-            // Insert header for on-premise connectivity with the consumer account name
+            // Insert header for on-premise connectivity with the consumer account Id
             urlConnection.setRequestProperty("SAP-Connectivity-ConsumerAccount",
                     getTenantContext().getTenant().getAccount().getId());
         }

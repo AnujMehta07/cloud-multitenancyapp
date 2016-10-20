@@ -4,6 +4,7 @@ import java.util.List;
 
 public class OGPlantsAirQualityWeeklyData {
 	
+	// To Do: Dynamically it should be created.
 	private List<OGPlantAirQualityDayData> plant1AirQualityWeeklyData;
 	private List<OGPlantAirQualityDayData> plant2AirQualityWeeklyData;
 	private List<OGPlantAirQualityDayData> plant3AirQualityWeeklyData;
