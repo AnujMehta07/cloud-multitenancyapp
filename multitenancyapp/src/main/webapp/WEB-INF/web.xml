@@ -36,6 +36,16 @@
     <servlet-name>SSLExampleServlet</servlet-name>
     <url-pattern>/SSLExampleServlet</url-pattern>
   </servlet-mapping>
+  
+   <servlet>
+    <servlet-name>DataInitializationServlet</servlet-name>
+    <servlet-class>com.sap.hana.cloud.samples.mfplantapp.api.DataInitializationServlet</servlet-class>
+  </servlet> 
+ <servlet-mapping>
+    <servlet-name>DataInitializationServlet</servlet-name>
+    <url-pattern>/initialize</url-pattern>
+  </servlet-mapping>
+  
   <servlet>
     <servlet-name>CXFServlet</servlet-name>
     <servlet-class>org.apache.cxf.jaxrs.servlet.CXFNonSpringJaxrsServlet</servlet-class>
