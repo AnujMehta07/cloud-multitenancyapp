@@ -1,8 +1,0 @@
-#
-#Thu Oct 20 10:41:57 UTC 2016
-Name=plantdetails
-URL=http\://manufact\:443/DEFGasLimited
-ProxyType=OnPremise
-Type=HTTP
-CloudConnectorVersion=2
-Authentication=NoAuthentication

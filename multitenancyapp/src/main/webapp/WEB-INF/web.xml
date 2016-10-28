@@ -17,11 +17,11 @@
     <res-type>com.sap.cloud.crypto.keystore.api.KeyStoreService</res-type>
   </resource-ref>
   <resource-ref>
-    <res-ref-name>plantdetails</res-ref-name>
+    <res-ref-name>onprem-plantdata-dest</res-ref-name>
     <res-type>com.sap.core.connectivity.api.http.HttpDestination</res-type>
   </resource-ref>
   <resource-ref>
-    <res-ref-name>plantopenaq</res-ref-name>
+    <res-ref-name>openaq-api-dest</res-ref-name>
     <res-type>com.sap.core.connectivity.api.http.HttpDestination</res-type>
   </resource-ref>
   <resource-ref>
