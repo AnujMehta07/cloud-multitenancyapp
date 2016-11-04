@@ -44,7 +44,7 @@ public class MFPlantDetailService {
 		ConnectivityConfiguration configuration = (ConnectivityConfiguration) ctx
 				.lookup("java:comp/env/connectivityConfiguration");
 		// Get destination configuration for "destinationName"
-		DestinationConfiguration destConfiguration = configuration.getConfiguration("plantdetails");
+		DestinationConfiguration destConfiguration = configuration.getConfiguration("onprem-plantdata-dest");
 		return destConfiguration;
 	}
 	

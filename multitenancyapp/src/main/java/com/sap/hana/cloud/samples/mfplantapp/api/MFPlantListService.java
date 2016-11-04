@@ -304,7 +304,7 @@ public class MFPlantListService {
 		ConnectivityConfiguration configuration = (ConnectivityConfiguration) ctx
 				.lookup("java:comp/env/connectivityConfiguration");
 		// Get destination configuration for "destinationName"
-		DestinationConfiguration destConfiguration = configuration.getConfiguration("plantopenaq");
+		DestinationConfiguration destConfiguration = configuration.getConfiguration("openaq-api-dest");
 		SSLSocketFactory socketFactory = null;
 		// Get the destination URL
 		String value = destConfiguration.getProperty("URL");
