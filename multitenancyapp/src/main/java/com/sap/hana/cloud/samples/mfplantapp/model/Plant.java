@@ -12,21 +12,20 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Model object representing a single {@link MFPlant} instance.
+ * Model object representing a single {@link Plant} instance.
  * 
  * @version 0.1
  */
 @Entity
-@Table(name = "MFPLANTAPP_CITY")
-@NamedQueries({@NamedQuery(name = "MFPlants", query = "SELECT c FROM MFPlant c"), 
-	           @NamedQuery(name = "MFPlantById", query = "SELECT c FROM MFPlant c WHERE c.id = :id"),
-	           @NamedQuery(name = "MFPlantByIdAndDate", query = "SELECT c FROM MFPlant c WHERE c.id = :id AND c.dateField BETWEEN :startDate AND :endDate ")})
+@Table(name = "PLANT_POLLOUTION_DATA")
+@NamedQueries({@NamedQuery(name = "Plants", query = "SELECT c FROM Plant c"), 
+	           @NamedQuery(name = "PlantById", query = "SELECT c FROM Plant c WHERE c.id = :id")})
 
 @XmlRootElement(name ="plantlist")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class MFPlant extends BaseObject implements Serializable
+public class Plant extends BaseObject implements Serializable
 {   /**
-	 * The <code>serialVersionUID</code> of the {@link MFPlant} class.
+	 * The <code>serialVersionUID</code> of the {@link Plant} class.
 	 */
 	private static final long serialVersionUID = 1L;
 

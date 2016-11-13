@@ -5,12 +5,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.security.KeyStore;
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.net.ssl.HttpsURLConnection;
@@ -28,27 +28,25 @@ import javax.persistence.Query;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.SecurityContext;
+
 import org.eclipse.persistence.config.PersistenceUnitProperties;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 import com.sap.cloud.account.Tenant;
 import com.sap.cloud.account.TenantContext;
 import com.sap.cloud.crypto.keystore.api.KeyStoreService;
 import com.sap.core.connectivity.api.configuration.ConnectivityConfiguration;
 import com.sap.core.connectivity.api.configuration.DestinationConfiguration;
-import com.sap.hana.cloud.samples.mfplantapp.model.MFPlant;
-import com.sap.hana.cloud.samples.mfplantapp.model.OGPlantAirQualityDayData;
-import com.sap.hana.cloud.samples.mfplantapp.model.OGPlantsAirQualityData;
-import com.sap.hana.cloud.samples.mfplantapp.model.OGPlantsAirQualityWeeklyData;
+import com.sap.hana.cloud.samples.mfplantapp.model.CompanyPollutionData;
+import com.sap.hana.cloud.samples.mfplantapp.model.Plant;
+import com.sap.hana.cloud.samples.mfplantapp.model.PlantPollutionDayData;
 import com.sap.security.um.service.UserManagementAccessor;
 import com.sap.security.um.user.PersistenceException;
 import com.sap.security.um.user.UnsupportedUserAttributeException;
@@ -56,117 +54,49 @@ import com.sap.security.um.user.User;
 import com.sap.security.um.user.UserProvider;
 
 /**
- * {@link MFPlantListService}
+ * {@link PollutionDataService}
  * 
  * @version 0.1
  */
 @SuppressWarnings("unchecked")
-@Path("/plantlist")
+@Path("/pollutiondata")
 @Produces({ MediaType.APPLICATION_JSON })
-public class MFPlantListService {
+public class PollutionDataService {
 	private static final int COPY_CONTENT_BUFFER_SIZE = 1024;
 
 	@GET
 	@Path("/")
-	public OGPlantsAirQualityData getPlantAirQualityDetails(@Context HttpServletRequest request,
+	public CompanyPollutionData getCompanyPollutionData(@Context HttpServletRequest request,
 			@Context HttpServletResponse response) throws Exception {
-		List<OGPlantAirQualityDayData> OGPlantAirQualityList = new ArrayList<OGPlantAirQualityDayData>();
-		List<MFPlant> mfPlantList = null;
+		List<Plant> mfPlantList = null;
 		String tenantId = getTenantId();
 		Map<String, String> props = new HashMap<String, String>();
 		props.put("elipselink.tenant.id", tenantId);
 		EntityManager em = this.getEntityManagerFactory().createEntityManager(props);
 		boolean isAdmin = isUserAdmin(request);
 		if (isAdmin) {
-			mfPlantList = em.createNamedQuery("MFPlants").getResultList();
-			OGPlantsAirQualityData ogPlantsAirQualityData = prepareOGPlantAirQualityList(mfPlantList, response);
-			ogPlantsAirQualityData.setRole("Area Manager" );
-			return ogPlantsAirQualityData;
+			mfPlantList = em.createNamedQuery("Plants").getResultList();
+			CompanyPollutionData companyPollutionData = prepareCompanyPollutionData(mfPlantList, response);
+			return companyPollutionData;
 		} else {
 			String plant_id = getPlantId(request);
-			mfPlantList = getMFPlantsById(plant_id);
-			OGPlantsAirQualityData ogPlantsAirQualityData = prepareOGPlantAirQualityList(mfPlantList, response);
-			ogPlantsAirQualityData.setRole("Supervisor");
-			return ogPlantsAirQualityData;
+			mfPlantList = getPlantPollutionDataById(plant_id);
+			CompanyPollutionData companyPollutionData = prepareCompanyPollutionData(mfPlantList, response);
+			return companyPollutionData;
 		}
 	}
 
 	@GET
 	@Path("/{id}")
-	public List<MFPlant> getMFPlantsById(@PathParam(value = "id") String id) {
-		List<MFPlant> retVal = null;
+	public List<Plant> getPlantPollutionDataById(@PathParam(value = "id") String id) {
+		List<Plant> retVal = null;
 		String tenantId = getTenantId();
 		Map<String, String> props = new HashMap<String, String>();
 		props.put("elipselink.tenant.id", tenantId);
 		EntityManager em = this.getEntityManagerFactory().createEntityManager(props);
-		Query query = em.createNamedQuery("MFPlantById");
+		Query query = em.createNamedQuery("PlantById");
 		query.setParameter("id", id);
 		retVal = query.getResultList();
-		return retVal;
-	}
-
-	@GET
-	@Path("/{id}/{startDate}/{endDate}")
-	public List<MFPlant> getMFPlantByIdAndDate(@PathParam(value = "id") String id,
-			@PathParam(value = "startDate") String startDate, @PathParam(value = "endDate") String endDate,
-			@Context SecurityContext ctx) {
-		List<MFPlant> retVal = null;
-		String tenantId = getTenantId();
-		Map<String, String> props = new HashMap<String, String>();
-		props.put("elipselink.tenant.id", tenantId);
-		EntityManager em = this.getEntityManagerFactory().createEntityManager(props);
-		Query query = em.createNamedQuery("MFPlantByIdAndDate");
-		query.setParameter("id", id);
-		query.setParameter("startDate", startDate);
-		query.setParameter("endDate", endDate);
-		retVal = query.getResultList();
-		return retVal;
-	}
-
-	@POST
-	@Path("/{id}/{date}/{o3}/{location}")
-	public List<MFPlant> addMFPlant(@Context SecurityContext ctx, @PathParam(value = "id") String id,
-			@PathParam(value = "date") Date date, @PathParam(value = "o3") String o3,
-			@PathParam(value = "location") String location) {
-		List<MFPlant> retVal = null;
-		MFPlant plant = new MFPlant();
-		plant.setId(id);
-		plant.setDateField(date);
-		plant.setO3(o3);
-		plant.setLocation(location);
-		String tenantId = getTenantId();
-		Map<String, String> props = new HashMap<String, String>();
-		props.put("elipselink.tenant.id", tenantId);
-		EntityManager em = this.getEntityManagerFactory().createEntityManager(props);
-		em.getTransaction().begin();
-		em.persist(plant);
-		em.getTransaction().commit();
-		retVal = em.createNamedQuery("MFPlants").getResultList();
-		return retVal;
-	}
-
-	@DELETE
-	@Path("/{id}")
-	public List<MFPlant> removeMFPlant(@PathParam(value = "id") String id, @Context SecurityContext ctx) {
-		List<MFPlant> retVal = null;
-		String tenantId = getTenantId();
-		Map<String, String> props = new HashMap<String, String>();
-		props.put("elipselink.tenant.id", tenantId);
-		EntityManager em = this.getEntityManagerFactory().createEntityManager(props);
-		Query query = em.createNamedQuery("MFPlantById");
-		query.setParameter("id", id);
-		retVal = query.getResultList();
-		for (Iterator iterator = retVal.iterator(); iterator.hasNext();) {
-			MFPlant mfPlant = (MFPlant) iterator.next();
-			if (mfPlant != null) {
-				em.getTransaction().begin();
-				em.remove(mfPlant);
-				em.getTransaction().commit();
-			}
-
-		}
-
-		retVal = em.createNamedQuery("MFPlants").getResultList();
 		return retVal;
 	}
 
@@ -197,7 +127,7 @@ public class MFPlantListService {
 			Map<String, DataSource> properties = new HashMap<String, DataSource>();
 			DataSource ds = this.getDataSource();
 			properties.put(PersistenceUnitProperties.NON_JTA_DATASOURCE, ds);
-			retVal = Persistence.createEntityManagerFactory("mfplantapp", properties);
+			retVal = Persistence.createEntityManagerFactory("multitenancyapp", properties);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -205,16 +135,16 @@ public class MFPlantListService {
 	}
 
 	@GET
-	@Path("/mfplantinfo/all")
+	@Path("/plantdata/")
 	@Produces({ MediaType.APPLICATION_JSON })
 	public String getMFPlantsDetail(@Context HttpServletRequest request) throws Exception {
-		MFPlantDetailService plantInfoService = new MFPlantDetailService();
+		PlantDataService plantInfoService = new PlantDataService();
 		boolean isUserAdmin = isUserAdmin(request);
 		if (isUserAdmin) {
-			return plantInfoService.getMFPlantsInformation();
+			return plantInfoService.getPlantsOnPremiseData();
 		} else {
 			String plant_id = getPlantId(request);
-			return plantInfoService.getMFPlantInformation(plant_id);
+			return plantInfoService.getPlantOnPremiseData(plant_id);
 		}
 
 	}
@@ -291,14 +221,13 @@ public class MFPlantListService {
 		socket.startHandshake();
 		return factory;
 	}
-//TO Do : Add boolean for isAdmin and prepare data accordingly.
-	private OGPlantsAirQualityData prepareOGPlantAirQualityList(List<MFPlant> mfPlantList, HttpServletResponse response)
+
+	// TO Do : Add boolean for isAdmin and prepare data accordingly.
+	private CompanyPollutionData prepareCompanyPollutionData(List<Plant> mfPlantList, HttpServletResponse response)
 			throws Exception {
 		HttpsURLConnection urlConnection = null;
-		OGPlantsAirQualityData ogPlantsAirQualityData = new OGPlantsAirQualityData();
-		OGPlantsAirQualityWeeklyData plantAirQualityWeeklyData = new OGPlantsAirQualityWeeklyData();
-		List<OGPlantAirQualityDayData> plantAirQualityDataList = new ArrayList<>();
-		List<OGPlantsAirQualityWeeklyData> plantsAirQualityWeeklyDataList = new ArrayList<>();
+		CompanyPollutionData companyPollutionData = new CompanyPollutionData();
+		List<PlantPollutionDayData> plantPollutionDayDataList = new ArrayList<>();
 		// Look up the connectivity configuration API
 		javax.naming.Context ctx = new InitialContext();
 		ConnectivityConfiguration configuration = (ConnectivityConfiguration) ctx
@@ -310,8 +239,8 @@ public class MFPlantListService {
 		String value = destConfiguration.getProperty("URL");
 		URL baseUrl = new URL(value);
 		socketFactory = establishedSSLConnection(response, baseUrl.getHost(), 443);
-		for (Iterator<MFPlant> iterator = mfPlantList.iterator(); iterator.hasNext();) {
-			MFPlant ogPlant = (MFPlant) iterator.next();
+		for (Iterator<Plant> iterator = mfPlantList.iterator(); iterator.hasNext();) {
+			Plant ogPlant = (Plant) iterator.next();
 			final String destinationUrl = value + "?parameter=o3&location=" + ogPlant.getLocation() + "&date_from="
 					+ ogPlant.getDateField() + "&date_to=" + ogPlant.getDateField();
 			URL url = new URL(destinationUrl.replaceAll(" ", "%20"));
@@ -321,30 +250,34 @@ public class MFPlantListService {
 			InputStream instream = urlConnection.getInputStream();
 			String msgBody = getResponseBodyasJSONArray(instream);
 			JSONObject cityO3 = new JSONObject(msgBody);
-			OGPlantAirQualityDayData plantAirQualityData = new OGPlantAirQualityDayData();
-			plantAirQualityData.setOgPlant(ogPlant);
+			PlantPollutionDayData plantPollutionDayData = new PlantPollutionDayData();
+			plantPollutionDayData.setPlant(ogPlant);
 			JSONArray jsonArray = cityO3.getJSONArray("results");
 			if (!jsonArray.isNull(0) && jsonArray.get(0) != null) {
 				JSONObject jsonObject = (JSONObject) jsonArray.get(0);
 				if (jsonObject != null) {
 					Double o3value = (Double) jsonObject.get("value");
-					plantAirQualityData.setCityO3(o3value.toString());
+					plantPollutionDayData.setCityOzoneLevel(o3value.toString());
 				}
 			} else {
 				// Value is not available
-				plantAirQualityData.setCityO3(" ");
+				plantPollutionDayData.setCityOzoneLevel(" ");
 			}
-			plantAirQualityDataList.add(plantAirQualityData);
+			plantPollutionDayDataList.add(plantPollutionDayData);
 		}
-		plantAirQualityWeeklyData.setPlant101AirQualityWeeklyData(plantAirQualityDataList.subList(0, 5));
-		if (plantAirQualityDataList.size() > 5) {
-			plantAirQualityWeeklyData.setPlant102AirQualityWeeklyData(plantAirQualityDataList.subList(5, 10));
-			plantAirQualityWeeklyData.setPlant103AirQualityWeeklyData(plantAirQualityDataList.subList(10, 15));
+		int size = plantPollutionDayDataList.size();
+		int i = 0;
+		int j = 5;
+		int k = 1;
+		while (size > 0) {
+			companyPollutionData.getPlantsPollutionWeeklyData().put(Integer.toString(k),
+					plantPollutionDayDataList.subList(i, j));
+			i = i + 5;
+			j = j + 5;
+			size = size - 5;
+			k++;
 		}
-		plantsAirQualityWeeklyDataList.add(plantAirQualityWeeklyData);
-
-		ogPlantsAirQualityData.setPlantAirQualityWeeklyDataList(plantsAirQualityWeeklyDataList);
-		return ogPlantsAirQualityData;
+		return companyPollutionData;
 	}
 
 	private boolean isUserAdmin(HttpServletRequest request)

@@ -19,16 +19,16 @@ import com.sap.cloud.account.TenantContext;
 import com.sap.core.connectivity.api.configuration.ConnectivityConfiguration;
 import com.sap.core.connectivity.api.configuration.DestinationConfiguration;
 
-@Path("/mfplantinfo")
+@Path("/plantdata")
 @Produces({ MediaType.APPLICATION_JSON })
-public class MFPlantDetailService {
+public class PlantDataService {
 	private static final int COPY_CONTENT_BUFFER_SIZE = 1024;
 	private static final String ON_PREMISE_PROXY = "OnPremise";
 
 	@GET
-	@Path("/all")
+	@Path("/")
 	@Produces({ MediaType.APPLICATION_JSON })
-	public String getMFPlantsInformation() throws Exception {
+	public String getPlantsOnPremiseData() throws Exception {
 		DestinationConfiguration destConfiguration = getDestConfiguration();
 		// Get the destination URL
 		String value = destConfiguration.getProperty("URL");
@@ -48,12 +48,12 @@ public class MFPlantDetailService {
 		return destConfiguration;
 	}
 	
-	public String getMFPlantInformation(String id) throws Exception {
+	public String getPlantOnPremiseData(String plant_id) throws Exception {
 		DestinationConfiguration destConfiguration = getDestConfiguration();
 		// Get the destination URL
 		String baseURL = destConfiguration.getProperty("URL");
 		String formattedURL = null;
-		formattedURL = MessageFormat.format("{0}?id={1}", baseURL, id);
+		formattedURL = MessageFormat.format("{0}?id={1}", baseURL, plant_id);
 		URL destinationURL=new URL(formattedURL);
 		String result = retrieveOnPremisePlantDetails(destConfiguration, destinationURL);
 		return result;
