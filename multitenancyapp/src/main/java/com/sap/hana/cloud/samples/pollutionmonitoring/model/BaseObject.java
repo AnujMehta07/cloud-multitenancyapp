@@ -1,4 +1,4 @@
-package com.sap.hana.cloud.samples.mfplantapp.model;
+package com.sap.hana.cloud.samples.pollutionmonitoring.model;
 
 import java.util.Date;
 import java.util.UUID;

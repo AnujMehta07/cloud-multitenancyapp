@@ -1,4 +1,4 @@
-package com.sap.hana.cloud.samples.mfplantapp.api;
+package com.sap.hana.cloud.samples.pollutionmonitoring.api;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -23,7 +23,7 @@ import org.eclipse.persistence.config.PersistenceUnitProperties;
 
 import com.sap.cloud.account.Tenant;
 import com.sap.cloud.account.TenantContext;
-import com.sap.hana.cloud.samples.mfplantapp.model.Plant;
+import com.sap.hana.cloud.samples.pollutionmonitoring.model.Plant;
 
 public class DataInitializationServlet extends HttpServlet {
 

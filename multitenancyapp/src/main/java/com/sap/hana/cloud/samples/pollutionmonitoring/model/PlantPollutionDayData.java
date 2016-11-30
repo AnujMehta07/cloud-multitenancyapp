@@ -1,4 +1,4 @@
-package com.sap.hana.cloud.samples.mfplantapp.model;
+package com.sap.hana.cloud.samples.pollutionmonitoring.model;
 
 public class PlantPollutionDayData {
 	private Plant plant;

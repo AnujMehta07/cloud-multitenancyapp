@@ -1,4 +1,4 @@
-package com.sap.hana.cloud.samples.mfplantapp.api;
+package com.sap.hana.cloud.samples.pollutionmonitoring.api;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,4 +1,4 @@
-package com.sap.hana.cloud.samples.mfplantapp.api;
+package com.sap.hana.cloud.samples.pollutionmonitoring.api;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -44,9 +44,9 @@ import com.sap.cloud.account.TenantContext;
 import com.sap.cloud.crypto.keystore.api.KeyStoreService;
 import com.sap.core.connectivity.api.configuration.ConnectivityConfiguration;
 import com.sap.core.connectivity.api.configuration.DestinationConfiguration;
-import com.sap.hana.cloud.samples.mfplantapp.model.CompanyPollutionData;
-import com.sap.hana.cloud.samples.mfplantapp.model.Plant;
-import com.sap.hana.cloud.samples.mfplantapp.model.PlantPollutionDayData;
+import com.sap.hana.cloud.samples.pollutionmonitoring.model.CompanyPollutionData;
+import com.sap.hana.cloud.samples.pollutionmonitoring.model.Plant;
+import com.sap.hana.cloud.samples.pollutionmonitoring.model.PlantPollutionDayData;
 import com.sap.security.um.service.UserManagementAccessor;
 import com.sap.security.um.user.PersistenceException;
 import com.sap.security.um.user.UnsupportedUserAttributeException;
